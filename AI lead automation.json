@@ -1,0 +1,851 @@
+{
+  "name": "AI lead automation",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1iKhirxpjQyzh6QL1F_80UWiw5PXFuZR6kyOQFK511O8",
+          "mode": "list",
+          "cachedResultName": "AI Lead Qualification System",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1iKhirxpjQyzh6QL1F_80UWiw5PXFuZR6kyOQFK511O8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1iKhirxpjQyzh6QL1F_80UWiw5PXFuZR6kyOQFK511O8/edit#gid=0"
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1072,
+        -96
+      ],
+      "id": "0e0539de-84cf-42ad-8145-f7cb2fbca9e9",
+      "name": "Google Sheets Trigger",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "dmFBtxB2ioGbTLy6",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an AI sales lead qualification system.\n\nYour job is to analyze incoming business leads and determine how valuable and urgent each lead is.\n\nAnalyze the following information:\n\n* Company\n* Industry\n* Business requirement\n* Budget\n* Timeline\n\nCalculate a lead score from 0 to 100.\n\nConsider these factors:\n\n1. Budget\n2. Urgency\n3. Specificity of the requirement\n4. Buying intent\n5. Business potential\n\nClassify the lead as:\n\nHOT = strong buying intent, meaningful budget and urgent/specific requirement.\n\nWARM = genuine interest but moderate budget, urgency or buying intent.\n\nCOLD = weak buying intent, low budget, vague requirement or no clear timeline.\n\nBuying intent must be one of:\n\nHIGH\nMEDIUM\nLOW\n\nRecommended action should be a short practical action for the sales team.\n\nReturn ONLY valid JSON in this exact structure:\n\n{\n\"lead_id\":\"\",\n\"lead_score\": 0,\n\"lead_temperature\": \"HOT\",\n\"buying_intent\": \"HIGH\",\n\"recommended_action\": \"Contact within 1 hour\"\n}\n\nDo not invent information that is not present in the lead.\n\nLead ID:\n{{ $json.lead_id }}\n\nName:\n{{ $json.name }}\n\nCompany:\n{{ $json.company }}\n\nIndustry:\n{{ $json.industry }}\n\nRequirement:\n{{ $json.requirement }}\n\nBudget:\n{{ $json.budget }}\n\nTimeline:\n{{ $json.timeline }}\n\n",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -848,
+        -64
+      ],
+      "id": "90bf507e-90e1-4321-914d-0594272a4a6e",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"lead_id\":\"\",\n  \"lead_score\": 0,\n  \"lead_temperature\": \"\",\n  \"buying_intent\": \"\",\n  \"recommended_action\": \"\"\n}\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -752,
+        176
+      ],
+      "id": "5365e1f8-7545-4819-91a0-0491fb22d56e",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1iKhirxpjQyzh6QL1F_80UWiw5PXFuZR6kyOQFK511O8",
+          "mode": "list",
+          "cachedResultName": "AI Lead Qualification System",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1iKhirxpjQyzh6QL1F_80UWiw5PXFuZR6kyOQFK511O8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1iKhirxpjQyzh6QL1F_80UWiw5PXFuZR6kyOQFK511O8/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "lead_score": "={{ $json.output.lead_score }}",
+            "lead_temperature": "={{ $json.output.lead_temperature }}",
+            "buying_intent": "={{ $json.output.buying_intent }}",
+            "recommended_action": "={{ $json.output.recommended_action }}",
+            "lead_id": "={{ $json.output.lead_id }}",
+            "status": "Analyzed"
+          },
+          "matchingColumns": [
+            "lead_id"
+          ],
+          "schema": [
+            {
+              "id": "lead_id",
+              "displayName": "lead_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "company",
+              "displayName": "company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "industry",
+              "displayName": "industry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "requirement",
+              "displayName": "requirement",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "budget",
+              "displayName": "budget",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "timeline",
+              "displayName": "timeline",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "lead_score",
+              "displayName": "lead_score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "lead_temperature",
+              "displayName": "lead_temperature",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "buying_intent",
+              "displayName": "buying_intent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "recommended_action",
+              "displayName": "recommended_action",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ai_message",
+              "displayName": "ai_message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "output",
+              "displayName": "output",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -560,
+        -64
+      ],
+      "id": "900fd6c1-5de3-4c86-aea1-5ee965aa25a4",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "JbROFvWuvbW3FjEG",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        -1056,
+        128
+      ],
+      "id": "fa137e8d-1bef-4823-af08-670fac323817",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "zgeuZCLWCqSWzccZ",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.lead_temperature }}",
+                    "rightValue": "HOT",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "d05970a2-3fe1-47b4-ac9b-9e84d07463e6"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "HOT"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "1c01acd0-7adc-4a88-8296-b48d2c88ceb9",
+                    "leftValue": "={{ $json.lead_temperature }}",
+                    "rightValue": "WARM",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "WARM"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "94ba7662-b56d-4e96-b42b-17168c46dcf1",
+                    "leftValue": "={{ $json.lead_temperature }}",
+                    "rightValue": "COLD",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "COLD"
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -384,
+        -80
+      ],
+      "id": "dfb3bc33-0e6c-43dc-9f2f-a55376706a56",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a professional sales communication assistant.\n\nWrite a short, natural and personalized email to a high-intent business lead.\n\nThe email must:\n\n* Address the person by name\n* Mention their specific requirement\n* Show that we understand their business need\n* Suggest a short discussion or call\n* Be professional and human\n* Be concise\n\nDo not invent pricing, discounts, guarantees, features or timelines.\n\nLead:\n\nName: {{ $('Google Sheets Trigger').item.json.name }}\n\n\nCompany: {{ $('Google Sheets Trigger').item.json.company }}\n\nIndustry: {{ $('Google Sheets Trigger').item.json.industry }}\n\nRequirement: {{ $('Google Sheets Trigger').item.json.requirement }}\n\nBudget: {{ $('Google Sheets Trigger').item.json.budget }}\n\nTimeline: {{ $('Google Sheets Trigger').item.json.timeline }}\n\nWrite ONLY the email body.\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -128,
+        -288
+      ],
+      "id": "cfeda054-18b4-4c85-bc8a-762ca4f2d797",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        -128,
+        -112
+      ],
+      "id": "cf7ca02e-18eb-411f-80b7-23e009a4390f",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "zgeuZCLWCqSWzccZ",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "margeshcopywriting@gmail.com",
+        "subject": "Regarding your Automation Requirement",
+        "emailType": "text",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        208,
+        -224
+      ],
+      "id": "c10c4cc4-efbc-4407-a1a7-e5c8fd6ef2a2",
+      "name": "Send a message",
+      "webhookId": "c8293c04-7ad3-4d7d-84ad-9c8b4c1d0e09",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "P3cjTIdMP4HX5SZh",
+          "name": "Gmail account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Write a short and friendly follow-up email for a moderately interested business lead.\n\nMention:\n\n* Their name\n* Their company\n* Their requirement\n\nThe message should encourage them to discuss their requirement without being pushy.\n\nDo not invent pricing, discounts, guarantees or features.\n\nLead name:{{ $('Google Sheets Trigger').item.json.name }}\n\n\nCompany:{{ $('Google Sheets Trigger').item.json.company }}\n\n\nRequirement:{{ $('Google Sheets Trigger').item.json.requirement }}\n\n\nBudget:{{ $('Google Sheets Trigger').item.json.budget }}\n\n\nTimeline:{{ $('Google Sheets Trigger').item.json.timeline }}\n\n\nWrite ONLY the email body.\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        176,
+        -64
+      ],
+      "id": "cd40b3a3-34bb-4303-94f7-71990327b47d",
+      "name": "AI Agent2"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        176,
+        128
+      ],
+      "id": "f5ebcb46-e9da-48bf-9ab1-2e4cd1c58541",
+      "name": "Google Gemini Chat Model3",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "zgeuZCLWCqSWzccZ",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "margeshcopywriting@gmail.com",
+        "subject": "Weren't you searching for automation for your business?!",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        512,
+        0
+      ],
+      "id": "a39dcbb1-77f6-4449-84a3-d621d4ceb1ef",
+      "name": "Send a message1",
+      "webhookId": "8d64f784-8d6f-470b-8086-0b0fe55b1672",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "P3cjTIdMP4HX5SZh",
+          "name": "Gmail account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1iKhirxpjQyzh6QL1F_80UWiw5PXFuZR6kyOQFK511O8",
+          "mode": "list",
+          "cachedResultName": "AI Lead Qualification System",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1iKhirxpjQyzh6QL1F_80UWiw5PXFuZR6kyOQFK511O8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1iKhirxpjQyzh6QL1F_80UWiw5PXFuZR6kyOQFK511O8/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "Nurture",
+            "lead_id": "={{ $json.lead_id }}",
+            "name": "={{ $('Google Sheets Trigger').item.json.name }}",
+            "email": "={{ $('Google Sheets Trigger').item.json.email }}",
+            "company": "={{ $('Google Sheets Trigger').item.json.company }}",
+            "industry": "={{ $('Google Sheets Trigger').item.json.industry }}",
+            "budget": "={{ $('Google Sheets Trigger').item.json.budget }}",
+            "requirement": "={{ $('Google Sheets Trigger').item.json.requirement }}",
+            "timeline": "={{ $('Google Sheets Trigger').item.json.timeline }}",
+            "buying_intent": "={{ $('Update row in sheet').item.json.buying_intent }}",
+            "lead_temperature": "={{ $('Update row in sheet').item.json.lead_temperature }}",
+            "lead_score": "={{ $('Update row in sheet').item.json.lead_score }}",
+            "recommended_action": "={{ $('Update row in sheet').item.json.recommended_action }}"
+          },
+          "matchingColumns": [
+            "lead_id"
+          ],
+          "schema": [
+            {
+              "id": "lead_id",
+              "displayName": "lead_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "company",
+              "displayName": "company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "industry",
+              "displayName": "industry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "requirement",
+              "displayName": "requirement",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "budget",
+              "displayName": "budget",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "timeline",
+              "displayName": "timeline",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "lead_score",
+              "displayName": "lead_score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "lead_temperature",
+              "displayName": "lead_temperature",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "buying_intent",
+              "displayName": "buying_intent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "recommended_action",
+              "displayName": "recommended_action",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ai_message",
+              "displayName": "ai_message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "output",
+              "displayName": "output",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -112,
+        144
+      ],
+      "id": "02909832-017d-4753-959e-3b6af49d5176",
+      "name": "Update row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "JbROFvWuvbW3FjEG",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent2": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "d34b34aa-004a-4a6f-8519-8d75fff6a346",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "cd4c6b482974d567bfcee890196d792d35b9f2cf02eee8e5a3e28d3a71a08579"
+  },
+  "nodeGroups": [],
+  "id": "fePxBzinUajmd9Xg",
+  "tags": []
+}
