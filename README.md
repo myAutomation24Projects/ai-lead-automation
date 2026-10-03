@@ -4,21 +4,22 @@ An AI-powered lead qualification and routing workflow built with n8n, Google She
 
 The workflow automatically analyzes new leads, classifies them as HOT, WARM, or COLD, updates the lead record, and sends an appropriate follow-up email based on the lead's intent and priority.
 
-Workflow Overview
+## Workflow Overview
 
+```text
 Google Sheets Trigger
         ↓
-    AI Agent
+     AI Agent
         ↓
 Update Row in Google Sheets
         ↓
       Switch
-   ┌────┼────┐
- HOT   WARM  COLD
-  ↓      ↓     ↓
+    ↙    ↓    ↘
+  HOT   WARM   COLD
+   ↓      ↓      ↓
 AI Agent AI Agent Update Sheet
-  ↓      ↓
-Gmail   Gmail
+   ↓      ↓
+ Gmail   Gmail
 
 What This Project Does
 
